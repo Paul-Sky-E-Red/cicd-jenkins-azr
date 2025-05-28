@@ -1,10 +1,23 @@
+// Define variables
+def myName = "paul"
+def myApplicationName = "sky-webapp"
+
+// Excecute the pipeline
 pipeline {
     agent any
-
+    environment {
+        AZURECREDENTIALS = credentials('azure-credentials')
+        REPOSITORY = "myacr.azurecr.io"
+    }
     stages {
         stage('Build Image') {
             steps {
-                sh 'echo "Building the new containerimage..."'
+                sh """#!/bin/bash
+                DOCKERIMAGE="${myName}-${myApplicationName}"
+                DOCKERTAG="0.0.$BUILD_TIMESTAMP"
+                echo "Building a new container image: $DOCKERIMAGE:$DOCKERTAG"
+                #docker build -t $DOCKERIMAGE:$DOCKERTAG .
+                """
             }
         }
         
@@ -16,7 +29,16 @@ pipeline {
 
         stage('Push Image') {
             steps {
-                sh 'echo "Image will be tagged and pushed to Azure AZR..."'
+                sh """#!/bin/bash
+                echo "Login to Azure Container Registry: $REPOSITORY"
+                #docker login -u $AZURECREDENTIALS_USR -p $AZURECREDENTIALS_PSW $REPOSITORY
+
+                echo "Tagging the new container image: $DOCKERIMAGE:$DOCKERTAG"
+                #docker tag $DOCKERIMAGE:$DOCKERTAG $REPOSITORY/$DOCKERIMAGE:$DOCKERTAG
+
+                echo "Pushing the new container image: $DOCKERIMAGE:$DOCKERTAG"
+                #docker push $REPOSITORY/$DOCKERIMAGE:$DOCKERTAG
+                """
             }
         }
         
