@@ -24,7 +24,7 @@ pipeline {
                 cd helm && mv webapp \$DOCKERIMAGE
                 echo "Building a new helmchart: \$DOCKERIMAGE with Version: $BUILD_ID"
                 helm package --app-version "$BUILD_ID" --version "$BUILD_ID" \$DOCKERIMAGE/ || exit 1
-                ''''"'
+                '''
 
             }
         }
