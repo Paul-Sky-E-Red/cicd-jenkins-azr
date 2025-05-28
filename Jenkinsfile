@@ -10,8 +10,9 @@ pipeline {
         stage('Build Image') {
             steps {
                 sh '''#!/bin/bash
+                cd container
                 echo "Building a new container image: \$DOCKERIMAGE:$BUILD_ID"
-                #docker build -t \$DOCKERIMAGE:$BUILD_ID .
+                docker build -t \$DOCKERIMAGE:$BUILD_ID .
                 '''
             }
         }
