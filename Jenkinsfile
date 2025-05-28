@@ -30,11 +30,11 @@ pipeline {
                 echo "Login to Azure Container Registry: \$REPOSITORY"
                 #docker login -u $AZURECREDENTIALS_USR -p $AZURECREDENTIALS_PSW \$REPOSITORY
 
-                echo "Tagging the new container image: \$DOCKERIMAGE:$DOCKERTAG"
-                #docker tag \$DOCKERIMAGE:$DOCKERTAG \$REPOSITORY/\$DOCKERIMAGE:$DOCKERTAG
+                echo "Tagging the new container image: \$DOCKERIMAGE:\$DOCKERTAG"
+                #docker tag \$DOCKERIMAGE:\$DOCKERTAG \$REPOSITORY/\$DOCKERIMAGE:\$DOCKERTAG
 
-                echo "Pushing the new container image: \$DOCKERIMAGE:$DOCKERTAG"
-                #docker push \$REPOSITORY/\$DOCKERIMAGE:$DOCKERTAG
+                echo "Pushing the new container image: \$DOCKERIMAGE:\$DOCKERTAG"
+                #docker push \$REPOSITORY/\$DOCKERIMAGE:\$DOCKERTAG
                 '''
             }
         }
