@@ -1,19 +1,15 @@
-// Define variables
-def myName = "paul"
-def myApplicationName = "sky-webapp"
-
-// Excecute the pipeline
+// This Jenkinsfile is used to build a Docker image, create a Helm chart, and push both to Azure Container Registry.
 pipeline {
     agent any
     environment {
         AZURECREDENTIALS = credentials('azure-credentials')
         REPOSITORY = "tempregistrykurs1.azurecr.io"
+        DOCKERIMAGE = "paul-sky-webapp" // Please change this to your desired Docker image name
     }
     stages {
         stage('Build Image') {
             steps {
                 sh """#!/bin/bash
-                DOCKERIMAGE="${myName}-${myApplicationName}"
                 BUILD_TIMESTAMP=$(date +%s)
                 DOCKERTAG="0.0.$BUILD_TIMESTAMP"
                 echo "Building a new container image: $DOCKERIMAGE:$DOCKERTAG"
