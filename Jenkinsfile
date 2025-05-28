@@ -11,7 +11,7 @@ pipeline {
             steps {
                 sh '''#!/bin/bash
                 BUILD_TIMESTAMP=$(date +%s)
-                DOCKERTAG="0.0.$BUILD_TIMESTAMP"
+                export DOCKERTAG="0.0.$BUILD_TIMESTAMP"
                 echo "Building a new container image: \$DOCKERIMAGE:$DOCKERTAG"
                 #docker build -t \$DOCKERIMAGE:$DOCKERTAG .
                 '''
@@ -30,7 +30,7 @@ pipeline {
                 echo "Login to Azure Container Registry: \$REPOSITORY"
                 #docker login -u $AZURECREDENTIALS_USR -p $AZURECREDENTIALS_PSW \$REPOSITORY
 
-                // echo "Tagging the new container image: \$DOCKERIMAGE:$DOCKERTAG"
+                echo "Tagging the new container image: \$DOCKERIMAGE:$DOCKERTAG"
                 #docker tag \$DOCKERIMAGE:$DOCKERTAG \$REPOSITORY/\$DOCKERIMAGE:$DOCKERTAG
 
                 echo "Pushing the new container image: \$DOCKERIMAGE:$DOCKERTAG"
