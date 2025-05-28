@@ -7,7 +7,7 @@ pipeline {
     agent any
     environment {
         AZURECREDENTIALS = credentials('azure-credentials')
-        REPOSITORY = "myacr.azurecr.io"
+        REPOSITORY = "tempregistrykurs1.azurecr.io"
     }
     stages {
         stage('Build Image') {
