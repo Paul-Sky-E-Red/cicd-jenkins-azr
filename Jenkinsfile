@@ -27,13 +27,13 @@ pipeline {
             steps {
                 sh '''#!/bin/bash
                 echo "Login to Azure Container Registry: \$REPOSITORY"
-                #docker login -u $AZURECREDENTIALS_USR -p $AZURECREDENTIALS_PSW \$REPOSITORY
+                docker login -u $AZURECREDENTIALS_USR -p $AZURECREDENTIALS_PSW \$REPOSITORY
 
                 echo "Tagging the new container image: \$DOCKERIMAGE:$BUILD_ID"
-                #docker tag \$DOCKERIMAGE:$BUILD_ID \$REPOSITORY/\$DOCKERIMAGE:$BUILD_ID
+                docker tag \$DOCKERIMAGE:$BUILD_ID \$REPOSITORY/\$DOCKERIMAGE:$BUILD_ID
 
                 echo "Pushing the new container image: \$DOCKERIMAGE:\$BUILD_ID"
-                #docker push \$REPOSITORY/\$DOCKERIMAGE:$BUILD_ID
+                docker push \$REPOSITORY/\$DOCKERIMAGE:$BUILD_ID
                 '''
             }
         }
