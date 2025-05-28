@@ -1,0 +1,79 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.name }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: {{ .Values.name }}
+    name: {{ .Values.name }}
+spec:
+  replicas: 1
+  revisionHistoryLimit: 3
+    selector:
+        matchLabels:
+        app: {{ .Values.name }}
+        name: {{ .Values.name }}
+    template:
+      metadata:
+        labels:
+          app: {{ .Values.name }}
+          name: {{ .Values.name }}
+      spec:
+        containers:
+        - name: {{ .Values.name }}
+          image: {{ .Values.imageRegistry }}/{{ .Values.name }}:{{ .Chart.AppVersion }}
+          ports:
+          - containerPort: 80
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "200m"
+              memory: "256Mi"
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+          volumeMounts:
+          - name: webapp-welcome
+            mountPath: /usr/share/nginx/html/index.html
+            subPath: index.html
+        volumes:
+        - name: webapp-welcome
+          configMap:
+            items:
+            - key: index.html
+              path: index.html
+            name: webapp-welcome
+        restartPolicy: Always
+        terminationGracePeriodSeconds: 30
+        dnsPolicy: ClusterFirst
+        # imagePullSecrets:
+        # - name: regcred
+---
+apiVersion: v1
+kind: configMap
+metadata:
+  name: webapp-welcome
+  namespace: {{ .Values.namespace }}
+data:
+  index.html: |
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Welcome to {{ .Values.name }}</title>
+    </head>
+    <body>
+        <h1>Welcome to {{ .Values.name }}</h1>
+        <p>This is a simple web application deployed using Helm.</p>
+        <p>Image: {{ .Values.image }}/{{ .Values.name }}:{{ .Chart.AppVersion }}</p>
+    </body>
+    </html>

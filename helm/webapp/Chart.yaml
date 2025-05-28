@@ -1,0 +1,8 @@
+apiVersion: v2
+name: webapp
+description: A Helm chart for deploying a web application
+version: "1.0"
+type: application
+maintainers:
+  - name: John Doe
+    email: john.doe@example.com
