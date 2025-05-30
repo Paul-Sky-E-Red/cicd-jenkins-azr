@@ -1,0 +1,47 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: example-webapp
+  namespace: example-ns
+  labels:
+    app: example-webapp
+    name: example-webapp
+spec:
+  replicas: 1
+  revisionHistoryLimit: 3
+  selector:
+      matchLabels:
+        app: example-webapp
+        name: example-webapp
+  template:
+    metadata:
+      labels:
+        app: example-webapp
+        name: example-webapp
+    spec:
+      containers:
+      - name: example-webapp
+        image: example-repo/example-webapp:example-tag
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "200m"
+            memory: "256Mi"
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 80
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 80
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      dnsPolicy: ClusterFirst
+      imagePullSecrets:
+      - name: regcred
