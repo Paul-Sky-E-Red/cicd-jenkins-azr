@@ -1,0 +1,22 @@
+---
+organization_name: sky-e-red
+kubernetes:
+  master: k3s-master01
+  cidr: 10.42.0.0/16
+
+packages:
+  - net-tools
+  - tree
+  - wget
+  - jq
+  - nano
+  - curl
+  - htop
+  - ufw
+  - fail2ban
+  - unattended-upgrades
+  - apt-listchanges
+  - apticron
+  - unzip
+  - sudo
+  - tar

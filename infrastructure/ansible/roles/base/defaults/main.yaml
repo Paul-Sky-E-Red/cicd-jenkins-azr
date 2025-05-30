@@ -1,0 +1,10 @@
+---
+ufw_allowed_ports_public:
+  - 22
+  - 22022
+
+ufw_allowed_ports_internal:
+  - 6443 # kubernetes api
+
+fail2ban_bantime: 1h
+fail2ban_retrycount: 3

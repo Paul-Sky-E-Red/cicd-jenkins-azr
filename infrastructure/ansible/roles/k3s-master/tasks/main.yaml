@@ -1,0 +1,18 @@
+---
+# - name: Install the master node
+#   include_tasks: install_master.yaml
+#   when:
+#     - initial_setup
+#     - inventory_hostname == kubernetes.master
+#   tags:
+#   - install_master
+
+# - name: Configure firewall respectively
+#   include_tasks: ufw.yaml
+#   tags:
+#   - ufw
+
+- name: Install flux
+  include_tasks: install_flux.yaml
+  tags:
+  - install_flux

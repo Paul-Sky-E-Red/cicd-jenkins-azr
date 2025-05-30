@@ -1,0 +1,18 @@
+
+
+[DEFAULT]
+# the time that a host is banned for.
+bantime = 1h
+# ignore local and from wireguard
+ignoreip = 127.0.0.1/8 ::1 10.0.0.0/24
+
+[sshd]
+enabled = true
+port = {{ ssh_port }}
+filter = sshd
+# the length of time between login attempts for maxretry.
+findtime = 600
+# attempts from a single ip before a ban is imposed.
+maxretry = 3
+# the time that a host is banned for.
+bantime = 1h

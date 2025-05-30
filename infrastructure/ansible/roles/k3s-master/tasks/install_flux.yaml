@@ -1,0 +1,10 @@
+---
+
+# - name: Install flux cli
+#   shell: "curl -s https://fluxcd.io/install.sh | sudo bash"
+#   #when: initial_setup
+
+- name: Install flux components
+  shell: "flux install --components-extra image-reflector-controller,image-automation-controller"
+  #when: initial_setup
+  

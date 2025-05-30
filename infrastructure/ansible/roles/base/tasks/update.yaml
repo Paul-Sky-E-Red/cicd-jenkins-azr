@@ -1,0 +1,26 @@
+---
+- name: Install bookworm backports repository
+  lineinfile:
+    path: /etc/apt/sources.list
+    state: present
+    line: 'deb http://deb.debian.org/debian bookworm-backports main'
+  when: ansible_distribution in ['Debian'] and ansible_distribution_major_version == '12' # In region westus2 is only Debian11 availbe, with backports
+
+- name: Update and upgrade apt packages
+  apt:
+    upgrade: yes
+    update_cache: yes
+    cache_valid_time: 86400 #One day
+  when: ansible_distribution in ['Ubuntu', 'Debian']
+  tags:
+  - update
+
+- name: Check if a reboot is required.
+  ansible.builtin.stat:
+    path: /var/run/reboot-required
+    get_checksum: false
+  register: reboot_required_file
+
+- name: Reboot the server (if required).
+  ansible.builtin.reboot:
+  when: reboot_required_file.stat.exists == true

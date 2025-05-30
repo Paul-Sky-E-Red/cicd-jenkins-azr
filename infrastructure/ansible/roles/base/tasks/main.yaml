@@ -1,0 +1,50 @@
+---
+- name: Update system
+  include_tasks: update.yaml
+  when: ansible_distribution in ['Ubuntu', 'Debian']
+  tags:
+  - update
+
+- name: Install appropriate packages
+  include_tasks: packages.yaml
+  when: ansible_distribution in ['Ubuntu', 'Debian']
+  tags:
+  - packages
+
+# My key was already provided during cloud provisioning, so this task is not needed.
+# - name: add authorized keys and users
+#   include_tasks: ssh_keys.yaml
+#   when: ansible_distribution in ['Ubuntu', 'Debian'] and initial_setup
+#   tags:
+#   - ssh_keys
+
+- name: move SSH Port
+  include_tasks: sshd.yaml
+  when: initial_setup
+  tags:
+  - sshd
+
+# Hostname already provided during cloud provisioning, so this task is not needed.
+# - name: Update hostname
+#   when: initial_setup
+#   hostname:
+#     name: "{{ inventory_hostname }}"
+#   tags:
+#   - hostname
+
+- name: Configure default SSH fail2ban
+  include_tasks: fail2ban.yaml
+  when: initial_setup
+  tags:
+  - fail2ban
+
+- name: Configure firewall respectively
+  include_tasks: ufw.yaml
+  when: initial_setup
+  tags:
+  - ufw
+
+- name: Configure myunattended-upgrades
+  include_tasks: myunattended-upgrades.yaml
+  tags:
+  - myunattended-upgrades

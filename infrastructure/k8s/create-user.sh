@@ -1,4 +1,6 @@
 #!/bin/bash
+set -e
+
 echo "Welcome to the Kubernetes user creation script!"
 echo "Createing a new user in kubernetes with appropriate permissions and kubeconfig"
 echo "This script assumes that you have kubectl installed and configured to access your k3s cluster."
@@ -12,7 +14,7 @@ fi
 
 # Smoketest the kubeconfig file
 echo "Testing the default kubeconfig file..."
-kubectl get pods --namespace $USERNAME
+kubectl get nodes
 if [ $? -ne 0 ]; then
   echo "Error: Could not connect to the Kubernetes cluster with the default kubeconfig file."
   exit 1
@@ -26,15 +28,16 @@ read USERNAME
 echo "Okay, $USERNAME, let's create your user in Kubernetes."
 
 # create a ssl certificate for the user
-openssl genrsa -out $USERNAME.key 2048
+openssl genrsa -out certs/$USERNAME.key 2048
 # create a certificate signing request (CSR)
-openssl req -new -key $USERNAME.key -out $USERNAME.csr -subj "/CN=$USERNAME"
+openssl req -new -key certs/$USERNAME.key -out certs/$USERNAME.csr -subj "/CN=$USERNAME"
 # encode base64
-cat $USERNAME.csr | base64 | tr -d "\n" > $USERNAME-base64.csr
+cat certs/$USERNAME.csr | base64 | tr -d "\n" > certs/$USERNAME-base64.csr
 
 # Submit the CSR to the Kubernetes API server
 echo "Certificate Signing Request (CSR) created for user $USERNAME."
-cat <<EOF | kubectl apply -f -
+
+kubectl apply -f - <<EOF
 apiVersion: certificates.k8s.io/v1
 kind: CertificateSigningRequest
 metadata:
@@ -42,7 +45,7 @@ metadata:
 spec:
   groups:
   - system:authenticated  
-  request: $(cat $USERNAME-base64.csr)
+  request: $(cat certs/$USERNAME-base64.csr)
   signerName: kubernetes.io/kube-apiserver-client
   expirationSeconds: 864000  # ten days
   usages:
@@ -57,6 +60,7 @@ kubectl certificate approve $USERNAME
 
 # wait for the CSR to be approved
 echo "Waiting for the CSR to be approved..."
+
 # check if the CSR is approved
 while true; do
   STATUS=$(kubectl get csr $USERNAME -o jsonpath='{.status.conditions[?(@.type=="Approved")].status}')
@@ -71,13 +75,13 @@ while true; do
 done
 
 # Get the csr and extract the certificate
-kubectl get csr $USERNAME -o jsonpath='{.status.certificate}' | base64 --decode > $USERNAME.crt
+kubectl get csr $USERNAME -o jsonpath='{.status.certificate}' | base64 --decode > certs/$USERNAME.crt
 
 # Create a kubeconfig file for the user
 echo "Creating kubeconfig file for user $USERNAME..."
 
-# Replace PUBLICIP with the actual public IP of your k3s server
-PUBLICIP=$(kubectl get nodes -o jsonpath='{.items[0].status.addresses[?(@.type=="ExternalIP")].address}')
+# Replace PUBLICIP with the actual public IP of your k3s server - k3s was setted up with public ip as the internal ip 
+PUBLICIP=$(kubectl get nodes -o jsonpath='{.items[0].status.addresses[?(@.type=="InternalIP")].address}')
 if [ -z "$PUBLICIP" ]; then
   echo "Error: Could not find the public IP of the k3s server."
   exit 1
@@ -85,26 +89,68 @@ fi
 echo "Public IP of k3s server: $PUBLICIP"
 
 # Create the kubeconfig file
-kubectl config set-cluster k3s --server=https://PUBLICIP:6443 --certificate-authority=/etc/kubernetes/pki/ca.crt --embed-certs=true --kubeconfig=$USERNAME.conf
-
-# Set the user credentials in the kubeconfig file
-kubectl config set-credentials $USERNAME --client-key=$USERNAME.key --client-certificate=$USERNAME.crt --embed-certs=true --kubeconfig=$USERNAME.conf
-
-# Maybe this is not needed, but it does not hurt
-kubectl config set-context $USERNAME@k3s --cluster=k3s --user=$USERNAME --kubeconfig=$USERNAME.conf
+cat << EOF > configs/$USERNAME.conf
+apiVersion: v1
+clusters:
+- cluster:
+    certificate-authority-data: $(kubectl config view --raw -o jsonpath='{.clusters[?(@.name == "default")].cluster.certificate-authority-data}')
+    server: https://$PUBLICIP:6443
+  name: k3s
+contexts:
+- context:
+    cluster: k3s
+    user: $USERNAME
+    namespace: $USERNAME
+  name: $USERNAME@k3s
+current-context: $USERNAME@k3s
+kind: Config
+preferences: {}
+users:
+- name: $USERNAME
+  user:
+    client-certificate-data: $(base64 -i certs/$USERNAME.crt)
+    client-key-data: $(base64 -i certs/$USERNAME.key)
+EOF
 
 # Create a namespace for the user
 kubectl create namespace $USERNAME
 
-# Create RBAC role and role binding for the user
-kubectl create role $USERNAME-role --verb="*" --resource="*" --namespace $USERNAME
+# Maybe this is not needed, but it does not hurt
+kubectl config set-context --current --namespace=$USERNAME
 
-# Create a role binding for the user
-kubectl create rolebinding $USERNAME-rolebinding --role=$USERNAME-role --user=$USERNAME --namespace $USERNAME
+# Create a role and rolebinding for the user
+kubectl apply -f - <<EOF
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: $USERNAME-role
+  namespace: $USERNAME
+rules:
+- apiGroups:
+  - '*'
+  resources:
+  - '*'
+  verbs:
+  - '*'
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: $USERNAME-rolebinding
+  namespace: $USERNAME
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: $USERNAME-role
+subjects:
+- apiGroup: rbac.authorization.k8s.io
+  kind: User
+  name: $USERNAME
+EOF
 
 # Smoketest the kubeconfig file
 echo "Testing the kubeconfig file..."
-kubectl --kubeconfig=$USERNAME.conf get pods --namespace $USERNAME
+kubectl --kubeconfig=configs/$USERNAME.conf get pods --namespace $USERNAME
 if [ $? -ne 0 ]; then
   echo "Error: Could not connect to the Kubernetes cluster with the kubeconfig file."
   exit 1

@@ -1,0 +1,5 @@
+---
+# INSTALL_K3S_EXEC="server"
+- name: Install k3s initial master node
+  shell: "curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION={{ k3s_version }} sh -s - server --advertise-address={{ public_address }} --flannel-iface={{ public_interface }} --node-name={{ inventory_hostname }} --node-ip={{ public_address }}"
+  when: initial_setup

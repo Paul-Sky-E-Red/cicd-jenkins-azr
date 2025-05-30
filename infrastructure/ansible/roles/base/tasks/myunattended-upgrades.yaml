@@ -1,0 +1,7 @@
+- name: Copy config file
+  template:
+    src: 51myunattended-upgrades
+    dest: /etc/apt/apt.conf.d/51myunattended-upgrades
+    mode: 0664
+  tags:
+  - myunattended-upgrades

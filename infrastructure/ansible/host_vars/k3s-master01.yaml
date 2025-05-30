@@ -1,0 +1,11 @@
+---
+initial_setup: false
+
+ssh_port: 22022
+
+public_interface: eth0
+public_address: 20.125.24.149
+public_fqdn: k3s-master01.westus2.cloudapp.azure.com
+
+private_interface: eth0
+private_address: 10.0.0.4

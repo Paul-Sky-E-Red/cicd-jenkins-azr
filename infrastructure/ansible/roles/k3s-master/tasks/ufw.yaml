@@ -1,0 +1,22 @@
+---
+- name: ufw allow public ports
+  ufw:
+    rule: allow
+    port: "{{ item }}"
+    interface: "{{ public_interface }}"
+    direction: in
+  loop: "{{ ufw_allowed_ports_public }}"
+  when: ufw_allowed_ports_public | length > 0
+
+# First allow everything through internal network
+- name: ufw allow all from internal
+  ufw:
+    rule: allow
+    interface: "{{ private_interface }}"
+    direction: in
+    proto: any
+
+- name: start and enable ufw
+  ufw:
+    state: enabled
+    policy: deny

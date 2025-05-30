@@ -1,0 +1,8 @@
+---
+- hosts:
+  - k3s-master01
+  become: yes
+  become_method: sudo
+  roles:
+    #- base
+    - k3s-master

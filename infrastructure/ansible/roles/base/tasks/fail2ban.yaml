@@ -1,0 +1,33 @@
+---
+- name: Install fail2ban
+  apt:
+    name: fail2ban
+    state: latest
+# Note: Using the default configuration from the package.
+# - name: Copy fail2ban configuration
+#   copy:
+#     src: jail.conf.j2
+#     dest: /etc/fail2ban/jail.local
+- name: Change sshd port
+  ini_file:
+    path: /etc/fail2ban/jail.local
+    section: sshd
+    option: port
+    value: "{{ ssh_port }}"
+  notify: restart fail2ban
+
+- name: Change bantime
+  ini_file:
+    path: /etc/fail2ban/jail.local
+    section: DEFAULT
+    option: bantime
+    value: "{{ fail2ban_bantime }}"
+  notify: restart fail2ban
+
+- name: Change retrycount
+  ini_file:
+    path: /etc/fail2ban/jail.local
+    section: DEFAULT
+    option: maxretry
+    value: "{{ fail2ban_retrycount }}"
+  notify: restart fail2ban

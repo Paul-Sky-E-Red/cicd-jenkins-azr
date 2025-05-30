@@ -1,0 +1,10 @@
+---
+ufw_allowed_ports_public:
+  - 6443
+  - 443
+  - 80
+
+ufw_allowed_ports_internal:
+  - 6443 # kubernetes api
+
+k3s_version: v1.32.5+k3s1

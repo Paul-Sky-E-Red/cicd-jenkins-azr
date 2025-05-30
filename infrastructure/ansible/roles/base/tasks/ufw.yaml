@@ -1,0 +1,22 @@
+---
+- name: ufw allow public ports
+  ufw:
+    rule: allow
+    port: "{{ item }}"
+    interface: "{{ public_interface }}"
+    direction: in
+  loop: "{{ ufw_allowed_ports_public }}"
+
+- name: ufw allow internal ports
+  ufw:
+    rule: allow
+    port: "{{ item }}"
+    interface: "{{ private_interface }}"
+    direction: in
+  when: ufw_allowed_ports_internal | length > 0
+  loop: "{{ ufw_allowed_ports_internal }}"
+
+- name: start and enable ufw
+  ufw:
+    state: enabled
+    policy: deny

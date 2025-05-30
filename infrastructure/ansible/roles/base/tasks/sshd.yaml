@@ -1,0 +1,41 @@
+---
+- name: Set SSH loglevel to verbose
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#LogLevel INFO'
+    line: 'LogLevel VERBOSE'
+
+- name: Disable SSH root login
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#PermitRootLogin'
+    line: 'PermitRootLogin no'
+
+- name: Disable SSH password authentication
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#PasswordAuthentication yes'
+    line: 'PasswordAuthentication no'
+
+- name: Set SSH UsePrivilegeSeparation
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    state: present
+    line: 'UsePrivilegeSeparation sandbox'
+
+- name: Set SSH AuthenticationMethods
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    state: present
+    line: 'AuthenticationMethods publickey'
+
+- name: Setup alternate SSHd port
+  lineinfile:
+    dest: /etc/ssh/sshd_config
+    regexp: '^#Port'
+    line: 'Port {{ ssh_port }}'
+
+- name: Restart SSHd
+  service:
+    name: sshd
+    state: restarted
