@@ -12,6 +12,7 @@ pipeline {
                 sh '''#!/bin/bash
                 cd container
                 echo "Changing names in welcome.html"
+                echo ""
                 sed -i -e "s/REPOSITORY/${REPOSITORY}/g" welcome.html && echo "REPOSITORY changed to ${REPOSITORY}"
                 sed -i -e "s/DOCKERIMAGE/${DOCKERIMAGE}/g" welcome.html && echo "DOCKERIMAGE changed to ${DOCKERIMAGE}"
                 sed -i -e "s/BUILD_ID/${BUILD_ID}/g" welcome.html && echo "BUILD_ID changed to ${BUILD_ID}"

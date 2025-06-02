@@ -1,0 +1,126 @@
+apiVersion: image.toolkit.fluxcd.io/v1beta2
+kind: ImageRepository
+metadata:
+  name: paul-sky-webapp
+  namespace: paul
+spec:
+  image: tempregistrykurs1.azurecr.io/
+  interval: 5m
+  secretRef:
+    name: regcred # Secrets for pulling images from private registries
+  # Or maybe this way
+  # imagePullSecrets:
+  # - name: regcred
+---
+apiVersion: image.toolkit.fluxcd.io/v1beta2
+kind: ImagePolicy
+metadata:
+  name: paul-sky-webapp
+  namespace: paul
+spec:
+  imageRepositoryRef:
+    name: paul-sky-webapp
+  policy:
+    numerical:
+      order: asc
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: paul-sky-webapp
+  namespace: paul
+  labels:
+    app: paul-sky-webapp
+    name: paul-sky-webapp
+spec:
+  replicas: 1
+  revisionHistoryLimit: 3
+  selector:
+      matchLabels:
+        app: paul-sky-webapp
+        name: paul-sky-webapp
+  template:
+    metadata:
+      labels:
+        app: paul-sky-webapp
+        name: paul-sky-webapp
+    spec:
+      containers:
+      - name: paul-sky-webapp
+        image: tempregistrykurs1.azurecr.io/paul-sky-webapp:17
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "200m"
+            memory: "256Mi"
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 80
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 80
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      dnsPolicy: ClusterFirst
+      imagePullSecrets:
+      - name: regcred
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: paul-sky-webapp
+  namespace: paul
+spec:
+  ports:
+  - name: http
+    port: 80
+    protocol: TCP
+    targetPort: 80
+  type: ClusterIP
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: paul-sky-webapp
+  namespace: paul
+  annotations:
+    kubernetes.io/ingress.class: traefik
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    traefik.ingress.kubernetes.io/router.middlewares: default-redirect-https@kubernetescrd
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+spec:
+  rules:
+  - host: paul-sky-webapp.k3s-master01.westus2.cloudapp.azure.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: paul-sky-webapp
+            port:
+              number: 80
+  tls:
+  - hosts:
+    - paul-sky-webapp.k3s-master01.westus2.cloudapp.azure.com
+    secretName: paul-sky-webapp-tls
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: paul-sky-webapp
+  namespace: paul
+spec:
+  secretName: paul-sky-webapp-tls
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+  commonName: paul-sky-webapp.k3s-master01.westus2.cloudapp.azure.com
+  dnsNames:
+  - paul-sky-webapp.k3s-master01.westus2.cloudapp.azure.com
