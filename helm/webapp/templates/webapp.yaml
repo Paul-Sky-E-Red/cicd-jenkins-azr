@@ -10,55 +10,53 @@ metadata:
 spec:
   replicas: 1
   revisionHistoryLimit: 3
-    selector:
-        matchLabels:
+  selector:
+    matchLabels:
+      app: {{ .Values.name }}
+      name: {{ .Values.name }}
+  template:
+    metadata:
+      labels:
         app: {{ .Values.name }}
         name: {{ .Values.name }}
-    template:
-      metadata:
-        labels:
-          app: {{ .Values.name }}
-          name: {{ .Values.name }}
-      spec:
-        containers:
-        - name: {{ .Values.name }}
-          image: {{ .Values.imageRegistry }}/{{ .Values.name }}:{{ .Chart.AppVersion }}
-          ports:
-          - containerPort: 80
-          resources:
-            requests:
-              cpu: "100m"
-              memory: "128Mi"
-            limits:
-              cpu: "200m"
-              memory: "256Mi"
-          readinessProbe:
-            httpGet:
-              path: /
-              port: 80
-          livenessProbe:
-            httpGet:
-              path: /
-              port: 80
-          volumeMounts:
-          - name: webapp-welcome
-            mountPath: /usr/share/nginx/html/index.html
-            subPath: index.html
-        volumes:
+    spec:
+      containers:
+      - name: {{ .Values.name }}
+        image: "{{ if .Values.image.registry }}{{ .Values.image.registry }}/{{ end }}{{ .Values.image.name }}:{{ if .Values.image.tag }}{{ .Values.image.tag }}{{ else }}latest{{ end }}"
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "200m"
+            memory: "256Mi"
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 80
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 80
+        volumeMounts:
         - name: webapp-welcome
-          configMap:
-            items:
-            - key: index.html
-              path: index.html
-            name: webapp-welcome
-        restartPolicy: Always
-        terminationGracePeriodSeconds: 30
-        dnsPolicy: ClusterFirst
-        # imagePullSecrets:
-        # - name: regcred
+          mountPath: /usr/share/nginx/html/index.html
+          subPath: index.html
+      volumes:
+      - name: webapp-welcome
+        configMap:
+          items:
+          - key: index.html
+            path: index.html
+          name: webapp-welcome
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      dnsPolicy: ClusterFirst
 ---
 apiVersion: v1
-kind: configMap
+kind: ConfigMap
 metadata:
   name: webapp-welcome
   namespace: {{ .Values.namespace }}
@@ -74,6 +72,14 @@ data:
     <body>
         <h1>Welcome to {{ .Values.name }}</h1>
         <p>This is a simple web application deployed using Helm.</p>
-        <p>Image: {{ .Values.image }}/{{ .Values.name }}:{{ .Chart.AppVersion }}</p>
+        <p>Registry: {{ .Values.image.registry | default "default" | quote }}</p>
+        <p>Image: {{ .Values.image.name }}:{{ if .Values.image.tag }}{{ .Values.image.tag }}{{ else }}latest{{ end }}</p>
+        <p>Namespace: {{ .Values.namespace }}</p>
+        <p>Helmchart Name: {{ .Chart.Name | default "n/a" | quote }}</p>
+        <p>Helmchart Description: {{ .Chart.Description | default "n/a" | quote }}</p>
+        <p>Helmchart Version: {{ .Chart.Version | default "n/a" | quote }}</p>
+        <p>Helmchart App Version: {{ .Chart.AppVersion | default "n/a" | quote}}</p>
+        <p>Helmchart Release Revision: {{ .Release.Revision | default "n/a" | quote }}</p>
+        <p>Helmchart Release Name: {{ .Release.Name | default "n/a" | quote }}</p>
     </body>
     </html>

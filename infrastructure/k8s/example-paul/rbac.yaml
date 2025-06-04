@@ -1,0 +1,40 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: paul-role
+  namespace: paul
+rules:
+- apiGroups:
+  - '*'
+  resources:
+  - '*'
+  verbs:
+  - '*'
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: paul-rolebinding
+  namespace: paul
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: paul-role
+subjects:
+- apiGroup: rbac.authorization.k8s.io
+  kind: User
+  name: paul
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: paul-clusterrolebinding
+  namespace: paul
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: kurs1-developer
+subjects:
+- apiGroup: rbac.authorization.k8s.io
+  kind: User
+  name: paul

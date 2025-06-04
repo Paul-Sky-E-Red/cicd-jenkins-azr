@@ -1,3 +1,6 @@
 name: webapp
-namespace: default
-imageRegistry: tempregistrykurs1.azurecr.io
+namespace: paul
+image:
+  registry: 
+  name: nginx
+  tag: latest
