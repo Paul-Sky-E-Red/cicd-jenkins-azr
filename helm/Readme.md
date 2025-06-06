@@ -87,7 +87,7 @@ Keine besonderen Schritte notwendig – stelle nur sicher, dass Helm installiert
    Überprüfe, ob deine neue Webapp läuft:
 
    ```bash
-   kubectl get pods -n <dein-namespace>
+   kubectl get pods
    ```
 
 ---
