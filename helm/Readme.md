@@ -50,7 +50,7 @@ Keine besonderen Schritte notwendig – stelle nur sicher, dass Helm installiert
 1. **Werte anpassen**  
    Öffne die Datei `webapp/values.yaml` und passe mindestens den Wert  
    ```namespace``` auf deinen Namen an.  
-   Teste vorsichtshalber ob deine Kubeconfig noch funktioniert mit ```kubectl get pods```.
+   Teste vorsichtshalber ob deine Kubeconfig noch funktioniert mit ```kubectl get nodes```.
 
 2. **Helmchart template**
    Schaue ob die Syntax in Ordnung ist und ein Helmchart gebaut werden könnte
