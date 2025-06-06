@@ -55,6 +55,7 @@ Keine besonderen Schritte notwendig – stelle nur sicher, dass Helm installiert
    Schaue ob die Syntax in Ordnung ist und ein Helmchart gebaut werden könnte
 
    ```bash
+   cd helm
    helm template webapp --values webapp/values.yaml
    ```
 
