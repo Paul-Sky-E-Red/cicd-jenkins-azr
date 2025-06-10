@@ -23,8 +23,14 @@ fi
 echo "kubectl is installed and k3s is reachable. Proceeding with user creation..."
 echo "##########################################"
 
-echo "Please enter the username:"
-read USERNAME
+if [ -z "$1" ]; then
+  echo "Please enter the username:"
+  read USERNAME
+else
+  echo "Username argument provided, using it as the username."
+  USERNAME=$1  
+fi
+
 echo "Okay, $USERNAME, let's create your user in Kubernetes."
 
 # create a ssl certificate for the user
@@ -47,7 +53,7 @@ spec:
   - system:authenticated  
   request: $(cat certs/$USERNAME-base64.csr)
   signerName: kubernetes.io/kube-apiserver-client
-  expirationSeconds: 864000  # ten days
+  expirationSeconds: 2592000  # 30 days
   usages:
   - client auth
 EOF
@@ -80,8 +86,8 @@ kubectl get csr $USERNAME -o jsonpath='{.status.certificate}' | base64 --decode 
 # Create a kubeconfig file for the user
 echo "Creating kubeconfig file for user $USERNAME..."
 
-# Replace PUBLICIP with the actual public IP of your k3s server - k3s was setted up with public ip as the internal ip 
-PUBLICIP=$(kubectl get nodes -o jsonpath='{.items[0].status.addresses[?(@.type=="InternalIP")].address}')
+# Replace PUBLICIP with the actual public IP of your k3s server 
+PUBLICIP=$(kubectl get nodes -o jsonpath='{.items[0].status.addresses[?(@.type=="ExternalIP")].address}')
 if [ -z "$PUBLICIP" ]; then
   echo "Error: Could not find the public IP of the k3s server."
   exit 1
