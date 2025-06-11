@@ -18,7 +18,7 @@ In diesem Ordner lernst du, wie du ein eigenes Helmchart erstellst und auf einem
 ## Einrichtung von kubectl
 
 Stelle sicher, dass `kubectl` installiert ist und auf dein k3s-Cluster zeigt.  
-Du hast zwei Möglichkeiten, deine Kubeconfig zu setzen:
+Es gibt drei Möglichkeiten, deine Kubeconfig zu setzen/verwalten:
 
 ### 1. Standard-Kubeconfig verwenden
 
@@ -35,6 +35,58 @@ Passe `$USERNAME` an deinen Benutzernamen an!
 ```bash
 export KUBECONFIG=/home/$USERNAME/Downloads/$USERNAME.conf
 kubectl get pods
+```
+
+### 3. Kubectl Contexts
+
+Es ist möglich nur eine Kubeconfig zu verwenden. In dieser einen Könfig kann man mehrere Contexts haben und diese wechseln, so könnt ihr dann auch z.B. ein Context für eure Docker-Desktop anlegen.   
+
+Beispiel (~/.kube/config):
+```
+apiVersion: v1
+clusters:
+- cluster:
+    certificate-authority-data: <CERT-ANPASSEN>
+    server: https://<IP-ADRESSE-ANPASSEN>:6443
+  name: k3s
+contexts:
+- context:
+    cluster: k3s
+    namespace: paul-dev
+    user: paul-dev
+  name: paul-dev@k3s
+- context:
+    cluster: k3s
+    namespace: paul-prod
+    user: paul-prod
+  name: paul-prod@k3s
+current-context: paul-prod@k3s
+kind: Config
+preferences: {}
+users:
+- name: paul-dev
+  user:
+    client-certificate-data: <CERT-ANPASSEN>
+    client-key-data: <CERT-ANPASSEN>
+- name: paul-prod
+  user:
+    client-certificate-data: <CERT-ANPASSEN>
+    client-key-data: <CERT-ANPASSEN>
+```
+
+Befehle zum Listen der Contexts:
+```
+kubectl config get-contexts
+
+CURRENT   NAME            CLUSTER   AUTHINFO    NAMESPACE
+          paul-dev@k3s    k3s       paul-dev    paul-dev
+*         paul-prod@k3s   k3s       paul-prod   paul-prod
+```
+
+Befehl zum wechseln der Contexts:
+
+```
+kubectl config use-context paul-prod
 ```
 
 ---
