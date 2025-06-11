@@ -86,7 +86,7 @@ CURRENT   NAME            CLUSTER   AUTHINFO    NAMESPACE
 Befehl zum wechseln der Contexts:
 
 ```
-kubectl config use-context paul-prod
+kubectl config use-context paul-prod@k3s
 ```
 
 ---
