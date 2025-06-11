@@ -72,6 +72,10 @@ pipeline {
                 echo "Changing names in example-webapp.yaml"
                 echo ""
                 sed -e "s/example-webapp/${APPNAME}/g" -e "s/example-ns/${CREATOR}/g" -e "s/example-image-path/${REPOSITORY}\\/${CREATOR}\\/${APPNAME}/g" -e "s/example-tag/${BUILD_ID}/g" example-webapp.yaml | tee webapp.yaml
+                echo ""
+                echo "Changing names in example-helm.yaml"
+                echo ""
+                sed -e "s/example-webapp/${APPNAME}/g" -e "s/example-ns/${CREATOR}/g" -e "s/example-image-path/${REPOSITORY}\\/${CREATOR}\\/${APPNAME}/g" -e "s/example-tag/${BUILD_ID}/g" -e "s/example-helm-path/${REPOSITORY}\\/${CREATOR}\\/${APPNAME}-helm/g" example-helm.yaml | tee helm.yaml
                 '''
             }
         }

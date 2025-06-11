@@ -1,3 +1,4 @@
+---
 apiVersion: image.toolkit.fluxcd.io/v1beta2
 kind: ImageRepository
 metadata:
@@ -23,4 +24,3 @@ spec:
   policy:
     numerical:
       order: asc
----
