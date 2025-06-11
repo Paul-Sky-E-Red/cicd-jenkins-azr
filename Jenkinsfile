@@ -6,7 +6,7 @@ pipeline {
         REPOSITORY = "registrykurs1.azurecr.io"
         APPNAME = "paul-sky-webapp" // Please adjust your name
         CREATOR = "paul" // Please adjust your name
-        DOCKERIMAGE = "$CREATOR/$APPNAME"
+        DOCKERIMAGE = "${env.CREATOR}/${env.APPNAME}"
     }
     stages {
         stage('Build Image') {
@@ -16,7 +16,7 @@ pipeline {
                 echo "Changing names in welcome.html"
                 echo ""
                 sed -i -e "s/REPOSITORY/${REPOSITORY}/g" welcome.html && echo "REPOSITORY changed to ${REPOSITORY}"
-                sed -i -e "s/DOCKERIMAGE/${DOCKERIMAGE}/g" welcome.html && echo "DOCKERIMAGE changed to ${DOCKERIMAGE}"
+                sed -i -e "s/DOCKERIMAGE/${CREATOR}\\/${APPNAME}/g" welcome.html && echo "DOCKERIMAGE changed to ${DOCKERIMAGE}"
                 sed -i -e "s/BUILD_ID/${BUILD_ID}/g" welcome.html && echo "BUILD_ID changed to ${BUILD_ID}"
                 echo "Building a new container image: ${DOCKERIMAGE}:$BUILD_ID"
                 docker build -t ${DOCKERIMAGE}:$BUILD_ID .
@@ -57,8 +57,8 @@ pipeline {
                 echo "Login to Azure Container Registry: ${REPOSITORY}"
                 helm registry login ${REPOSITORY} -u $AZURECREDENTIALS_USR -p $AZURECREDENTIALS_PSW 
 
-                echo "Pushing the new helmchart package: ${APPNAME}-${BUILD_ID}.tgz to registry: ${REPOSITORY}/${DOCKERIMAGE}-helm"
-                helm push ${APPNAME}-${BUILD_ID}.tgz oci://${REPOSITORY}/${DOCKERIMAGE}-helm || exit 1
+                echo "Pushing the new helmchart package: webapp-${BUILD_ID}.tgz to registry: ${REPOSITORY}/${DOCKERIMAGE}-helm"
+                helm push webapp-${BUILD_ID}.tgz oci://${REPOSITORY}/${DOCKERIMAGE}-helm || exit 1
                 '''
             }
         }
@@ -67,9 +67,11 @@ pipeline {
                 sh '''#!/bin/bash
                 cd k8s
                 echo "Changing names in example-flux.yaml"
-                sed -e "s/example-webapp/${DOCKERIMAGE}/g" -e "s/example-ns/${CREATOR}/g" -e "s/example-repo/${REPOSITORY}/g" -e "s/example-tag/${BUILD_ID}/g" example-flux.yaml | tee flux.yaml
+                sed -e "s/example-webapp/${APPNAME}/g" -e "s/example-ns/${CREATOR}/g" -e "s/example-repo/${REPOSITORY}\\/${CREATOR}/g" -e "s/example-tag/${BUILD_ID}/g" example-flux.yaml | tee flux.yaml
+                echo ""
                 echo "Changing names in example-webapp.yaml"
-                sed -e "s/example-webapp/${DOCKERIMAGE}/g" -e "s/example-ns/${CREATOR}/g" -e "s/example-repo/${REPOSITORY}/g" -e "s/example-tag/${BUILD_ID}/g" example-webapp.yaml | tee webapp.yaml
+                echo ""
+                sed -e "s/example-webapp/${APPNAME}/g" -e "s/example-ns/${CREATOR}/g" -e "s/example-image-path/${REPOSITORY}\\/${CREATOR}\\/${APPNAME}/g" -e "s/example-tag/${BUILD_ID}/g" example-webapp.yaml | tee webapp.yaml
                 '''
             }
         }

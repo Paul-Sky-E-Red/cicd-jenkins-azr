@@ -6,8 +6,8 @@ metadata:
 spec:
   image: example-repo/
   interval: 5m
-  secretRef:
-    name: regcred # Secrets for pulling images from private registries
+  # secretRef:
+  #   name: regcred # Secrets for pulling images from private registries
   # Or maybe this way
   # imagePullSecrets:
   # - name: regcred

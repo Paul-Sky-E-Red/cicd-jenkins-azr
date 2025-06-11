@@ -22,7 +22,7 @@ spec:
     spec:
       containers:
       - name: example-webapp
-        image: example-repo/example-webapp:example-tag
+        image: example-image-path:example-tag
         ports:
         - containerPort: 80
         resources:
@@ -43,8 +43,8 @@ spec:
       restartPolicy: Always
       terminationGracePeriodSeconds: 30
       dnsPolicy: ClusterFirst
-      imagePullSecrets:
-      - name: regcred
+      # imagePullSecrets:
+      # - name: regcred
 ---
 apiVersion: v1
 kind: Service
