@@ -71,10 +71,10 @@ metadata:
     traefik.ingress.kubernetes.io/router.entrypoints: websecure
 spec:
   rules:
-  - host: example-webapp.k3s-master01.westus2.cloudapp.azure.com
+  - host: k3s-master01.westus2.cloudapp.azure.com
     http:
       paths:
-      - path: /
+      - path: /example-webapp
         pathType: Prefix
         backend:
           service:
@@ -83,19 +83,5 @@ spec:
               number: 80
   tls:
   - hosts:
-    - example-webapp.k3s-master01.westus2.cloudapp.azure.com
-    secretName: example-webapp-tls
----
-apiVersion: cert-manager.io/v1
-kind: Certificate
-metadata:
-  name: example-webapp
-  namespace: example-ns
-spec:
-  secretName: example-webapp-tls
-  issuerRef:
-    name: letsencrypt-prod
-    kind: ClusterIssuer
-  commonName: example-webapp.k3s-master01.westus2.cloudapp.azure.com
-  dnsNames:
-  - example-webapp.k3s-master01.westus2.cloudapp.azure.com
+    - k3s-master01.westus2.cloudapp.azure.com
+    secretName: default-tls
