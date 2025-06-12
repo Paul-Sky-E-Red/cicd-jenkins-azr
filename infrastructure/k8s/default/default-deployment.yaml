@@ -1,34 +1,36 @@
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: example-webapp
-  namespace: example-ns
+  name: webapp
+  namespace: default
   labels:
-    app: example-webapp
-    name: example-webapp
+    app: webapp
+    name: webapp
 spec:
   replicas: 1
   revisionHistoryLimit: 3
   selector:
       matchLabels:
-        app: example-webapp
-        name: example-webapp
+        app: webapp
+        name: webapp
   template:
     metadata:
       labels:
-        app: example-webapp
-        name: example-webapp
+        app: webapp
+        name: webapp
     spec:
       containers:
-      - name: example-webapp
-        image: example-image-path:example-tag
+      - name: webapp
+        image: nginx:latest
         ports:
         - containerPort: 80
         resources:
-          limits:
+          requests:
             cpu: "100m"
             memory: "128Mi"
+          limits:
+            cpu: "200m"
+            memory: "256Mi"
         readinessProbe:
           httpGet:
             path: /
@@ -44,12 +46,12 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: example-webapp
-  namespace: example-ns
+  name: webapp
+  namespace: default
 spec:
   selector:
-    app: example-webapp
-    name: example-webapp
+    app: webapp
+    name: webapp
   ports:
   - name: http
     port: 80
@@ -60,28 +62,27 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: example-webapp
-  namespace: example-ns
+  name: webapp
+  namespace: default
   annotations:
     kubernetes.io/ingress.class: traefik
     cert-manager.io/cluster-issuer: letsencrypt-prod
-    traefik.ingress.kubernetes.io/router.middlewares: default-redirect-https@kubernetescrd,default-rewrite-prefix@kubernetescrd
+    traefik.ingress.kubernetes.io/router.middlewares: default-redirect-https@kubernetescrd
     traefik.ingress.kubernetes.io/router.entrypoints: websecure
-    traefik.ingress.kubernetes.io/rewrite-target: /
 spec:
   ingressClassName: traefik
   rules:
-  - host: example-fqdn
+  - host: k3s-master01.westus2.cloudapp.azure.com
     http:
       paths:
-      - path: /example-webapp
-        pathType: Prefix
+      - path: /
+        pathType: Exact
         backend:
           service:
-            name: example-webapp
+            name: webapp
             port:
               number: 80
   tls:
   - hosts:
-    - example-fqdn
+    - k3s-master01.westus2.cloudapp.azure.com
     secretName: default-tls

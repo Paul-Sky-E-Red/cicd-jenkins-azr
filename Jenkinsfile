@@ -7,6 +7,7 @@ pipeline {
         APPNAME = "paul-sky-webapp" // Please adjust your name
         CREATOR = "paul" // Please adjust your name
         DOCKERIMAGE = "${env.CREATOR}/${env.APPNAME}"
+        PUBLIC_FQDN = "k3s-master01.westus2.cloudapp.azure.com"
     }
     stages {
         stage('Build Image') {
@@ -71,11 +72,11 @@ pipeline {
                 echo ""
                 echo "Changing names in example-webapp.yaml"
                 echo ""
-                sed -e "s/example-webapp/${APPNAME}/g" -e "s/example-ns/${CREATOR}/g" -e "s/example-image-path/${REPOSITORY}\\/${CREATOR}\\/${APPNAME}/g" -e "s/example-tag/${BUILD_ID}/g" example-webapp.yaml | tee webapp.yaml
+                sed -e "s/example-webapp/${APPNAME}/g" -e "s/example-ns/${CREATOR}/g" -e "s/example-image-path/${REPOSITORY}\\/${CREATOR}\\/${APPNAME}/g" -e "s/example-tag/${BUILD_ID}/g" -e "s/example-fqdn/${PUBLIC_FQDN}/g" example-webapp.yaml | tee webapp.yaml
                 echo ""
                 echo "Changing names in example-helm.yaml"
                 echo ""
-                sed -e "s/example-webapp/${APPNAME}/g" -e "s/example-ns/${CREATOR}/g" -e "s/example-image-path/${REPOSITORY}\\/${CREATOR}\\/${APPNAME}/g" -e "s/example-repo/${REPOSITORY}\\/${CREATOR}/g" -e "s/example-tag/${BUILD_ID}/g" -e "s/example-helm-path/${REPOSITORY}\\/${CREATOR}\\/${APPNAME}-helm/g" example-helm.yaml | tee helm.yaml
+                sed -e "s/example-webapp/${APPNAME}/g" -e "s/example-ns/${CREATOR}/g" -e "s/example-image-path/${REPOSITORY}\\/${CREATOR}\\/${APPNAME}/g" -e "s/example-repo/${REPOSITORY}\\/${CREATOR}/g" -e "s/example-tag/${BUILD_ID}/g" -e "s/example-helm-path/${REPOSITORY}\\/${CREATOR}\\/${APPNAME}-helm/g" -e "s/example-fqdn/${PUBLIC_FQDN}/g" example-helm.yaml | tee helm.yaml
                 '''
             }
         }

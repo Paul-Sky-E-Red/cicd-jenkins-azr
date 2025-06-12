@@ -29,6 +29,8 @@ spec:
   values:
     name: example-webapp
     namespace: example-ns
+    public:
+      fqdn: example-fqdn
     image:
       repository: example-repo
       name: example-webapp

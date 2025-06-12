@@ -1,5 +1,7 @@
 name: webapp
 namespace: paul
+public:
+  fqdn: 
 image:
   registry: 
   name: nginx

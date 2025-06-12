@@ -1,0 +1,13 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: default-tls
+  namespace: default
+spec:
+  secretName: default-tls
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+  commonName: k3s-master01.westus2.cloudapp.azure.com
+  dnsNames:
+  - k3s-master01.westus2.cloudapp.azure.com

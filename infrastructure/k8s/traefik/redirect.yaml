@@ -7,3 +7,17 @@ spec:
   redirectScheme:
     scheme: https
     permanent: true
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: rewrite-prefix
+  namespace: default
+spec:
+  stripPrefix:
+    forceSlash: false
+    prefixes:
+      - "/paul-sky-webapp"
+      - "/paul-dev-sky-webapp"
+      - "/paul-prod-sky-webapp"
+# And so on ...

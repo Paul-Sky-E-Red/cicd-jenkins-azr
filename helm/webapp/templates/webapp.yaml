@@ -26,12 +26,9 @@ spec:
         ports:
         - containerPort: 80
         resources:
-          requests:
+          limits:
             cpu: "100m"
             memory: "128Mi"
-          limits:
-            cpu: "200m"
-            memory: "256Mi"
         readinessProbe:
           httpGet:
             path: /
@@ -81,5 +78,53 @@ data:
         <p>Helmchart App Version: {{ .Chart.AppVersion | default "n/a" | quote}}</p>
         <p>Helmchart Release Revision: {{ .Release.Revision | default "n/a" | quote }}</p>
         <p>Helmchart Release Name: {{ .Release.Name | default "n/a" | quote }}</p>
+        <p>Public URL: https://{{ .Values.public.fqdn }}/{{ .Values.name }}</p>
     </body>
     </html>
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.name }}
+  namespace: {{ .Values.namespace }}
+spec:
+  selector:
+    app: {{ .Values.name }}
+    name: {{ .Values.name }}
+  ports:
+  - name: http
+    port: 80
+    protocol: TCP
+    targetPort: 80
+  type: ClusterIP
+{{- if .Values.public.fqdn }}
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ .Values.name }}
+  namespace: {{ .Values.namespace }}
+  annotations:
+    kubernetes.io/ingress.class: traefik
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    traefik.ingress.kubernetes.io/router.middlewares: default-redirect-https@kubernetescrd,default-rewrite-prefix@kubernetescrd
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    traefik.ingress.kubernetes.io/rewrite-target: /
+spec:
+  ingressClassName: traefik
+  rules:
+  - host: {{ .Values.public.fqdn }}
+    http:
+      paths:
+      - path: /{{ .Values.name }}
+        pathType: Prefix
+        backend:
+          service:
+            name: {{ .Values.name }}
+            port:
+              number: 80
+  tls:
+  - hosts:
+    - {{ .Values.public.fqdn }}
+    secretName: default-tls
+{{- end }}
