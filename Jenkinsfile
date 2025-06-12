@@ -4,7 +4,7 @@ pipeline {
     environment {
         AZURECREDENTIALS = credentials('azure-credentials')
         REPOSITORY = "registrykurs1.azurecr.io"
-        CREATOR = "paul-dev" // Please adjust your name
+        CREATOR = "paul" // Please adjust your name
         APPNAME = "${env.CREATOR}-sky-webapp"
         DOCKERIMAGE = "${env.CREATOR}/${env.APPNAME}"
         PUBLIC_FQDN = "k3s-master01.westus2.cloudapp.azure.com"
@@ -72,7 +72,7 @@ pipeline {
                 sh '''#!/bin/bash
                 cd k8s
                 echo "Changing names in example-flux.yaml"
-                sed -e "s/example-webapp/${APPNAME}/g" -e "s/example-ns/${CREATOR}/g" -e "s/example-repo/${REPOSITORY}\\/${CREATOR}/g" -e "s/example-tag/${IMAGE_TAG}/g" example-flux.yaml | tee flux.yaml
+                sed -e "s/example-webapp/${APPNAME}/g" -e "s/example-ns/${CREATOR}/g" -e "s/example-repo/${REPOSITORY}\\/${CREATOR}/g" -e "s/example-tag/${IMAGE_TAG}/g" -e "s/example-image-path/${REPOSITORY}\\/${CREATOR}\\/${APPNAME}/g" example-flux.yaml | tee flux.yaml
                 echo ""
                 echo "Changing names in example-webapp.yaml"
                 echo ""
