@@ -6,9 +6,12 @@ metadata:
   namespace: example-ns
 spec:
   url: oci://example-helm-path
+  type: oci
   provider: azure
   interval: 5m
   timeout: 60s
+  secretRef:
+    name: regcred
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
@@ -20,7 +23,7 @@ spec:
   chart:
     spec:
       chart: example-webapp
-      version: ">=1"
+      version: ">=0.0.1"
       sourceRef:
         kind: HelmRepository
         name: example-webapp
@@ -32,6 +35,6 @@ spec:
     public:
       fqdn: example-fqdn
     image:
-      repository: example-repo
+      registry: example-repo/example-ns
       name: example-webapp
-      tag: example-tag
+      #tag: example-tag
