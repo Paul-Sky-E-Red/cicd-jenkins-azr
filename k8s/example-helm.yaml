@@ -35,6 +35,6 @@ spec:
     public:
       fqdn: example-fqdn
     image:
-      registry: example-repo/example-ns
+      registry: example-repo
       name: example-webapp
-      #tag: example-tag
+      tag: example-tag
