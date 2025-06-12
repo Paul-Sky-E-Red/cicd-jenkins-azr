@@ -4,8 +4,8 @@ pipeline {
     environment {
         AZURECREDENTIALS = credentials('azure-credentials')
         REPOSITORY = "registrykurs1.azurecr.io"
-        APPNAME = "paul-sky-webapp" // Please adjust your name
         CREATOR = "paul-dev" // Please adjust your name
+        APPNAME = "${env.CREATOR}-sky-webapp"
         DOCKERIMAGE = "${env.CREATOR}/${env.APPNAME}"
         PUBLIC_FQDN = "k3s-master01.westus2.cloudapp.azure.com"
         IMAGE_TAG = "0.0.${env.BUILD_ID}"
