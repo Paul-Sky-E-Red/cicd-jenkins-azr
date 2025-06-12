@@ -22,7 +22,7 @@ spec:
     spec:
       containers:
       - name: {{ .Values.name }}
-        image: "{{ if .Values.image.registry }}{{ .Values.image.registry }}/{{ end }}{{ .Values.image.name }}:{{ if .Values.image.tag }}{{ .Values.image.tag }}{{ else }}latest{{ end }}"
+        image: "{{ if .Values.image.registry }}{{ .Values.image.registry }}/{{ end }}{{ .Values.image.name }}:{{ if .Values.image.tag }}{{ .Values.image.tag }}{{ else }}{{ .Chart.Version }}{{ end }}"
         ports:
         - containerPort: 80
         resources:
@@ -70,7 +70,7 @@ data:
         <h1>Welcome to {{ .Values.name }}</h1>
         <p>This is a simple web application deployed using Helm.</p>
         <p>Registry: {{ .Values.image.registry | default "default" | quote }}</p>
-        <p>Image: {{ .Values.image.name }}:{{ if .Values.image.tag }}{{ .Values.image.tag }}{{ else }}latest{{ end }}</p>
+        <p>Image: {{ .Values.image.name }}:{{ if .Values.image.tag }}{{ .Values.image.tag }}{{ else }}{{ .Chart.Version }}{{ end }}</p>
         <p>Namespace: {{ .Values.namespace }}</p>
         <p>Helmchart Name: {{ .Chart.Name | default "n/a" | quote }}</p>
         <p>Helmchart Description: {{ .Chart.Description | default "n/a" | quote }}</p>
