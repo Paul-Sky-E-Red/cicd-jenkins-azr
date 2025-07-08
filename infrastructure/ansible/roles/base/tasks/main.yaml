@@ -12,11 +12,11 @@
   - packages
 
 # My key was already provided during cloud provisioning, so this task is not needed.
-# - name: add authorized keys and users
-#   include_tasks: ssh_keys.yaml
-#   when: ansible_distribution in ['Ubuntu', 'Debian'] and initial_setup
-#   tags:
-#   - ssh_keys
+- name: add authorized keys and users
+  include_tasks: ssh_keys.yaml
+  when: ansible_distribution in ['Ubuntu', 'Debian'] and initial_setup
+  tags:
+  - ssh_keys
 
 - name: move SSH Port
   include_tasks: sshd.yaml
